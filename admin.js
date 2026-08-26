@@ -14,7 +14,7 @@
 // ============================================================================
 // CONFIGURATION
 // ============================================================================
-const ADMIN_PIN = "1234"; // Default admin PIN (Change anytime)
+const ADMIN_PIN = "7788";
 
 const SUPABASE_URL = "https://plfcxgepkdotlgogvlvs.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBsZmN4Z2Vwa2RvdGxnb2d2bHZzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc2OTE0NDYsImV4cCI6MjEwMzI2NzQ0Nn0.ZUl7Pdc03PijnR6Q1WeRrNU7-a1nF5hgGRk4HFbAZe4";
