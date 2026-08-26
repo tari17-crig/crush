@@ -255,13 +255,31 @@ document.addEventListener('DOMContentLoaded', () => {
       };
 
       // If not already in Supabase results, append to front
-      const alreadyExists = responsesList.some(r => r.session_id === localRecord.session_id);
+      const alreadyExists = responsesList.some(r => 
+        r.session_id === localRecord.session_id || 
+        (r.visitor_name && r.visitor_name.trim().toLowerCase() === localRecord.visitor_name.trim().toLowerCase())
+      );
       if (!alreadyExists) {
         responsesList.unshift(localRecord);
       }
     }
 
-    renderDashboard(responsesList);
+    // Deduplicate responses list by visitor_name (case-insensitive) keeping the most complete / latest record
+    const uniqueMap = new Map();
+    responsesList.forEach(rec => {
+      const nameKey = (rec.visitor_name || 'Anonymous').trim().toLowerCase();
+      if (!uniqueMap.has(nameKey)) {
+        uniqueMap.set(nameKey, rec);
+      } else {
+        const existing = uniqueMap.get(nameKey);
+        if (!existing.completed && rec.completed) {
+          uniqueMap.set(nameKey, rec);
+        }
+      }
+    });
+
+    const uniqueResponsesList = Array.from(uniqueMap.values());
+    renderDashboard(uniqueResponsesList);
   }
 
   function renderDashboard(records) {

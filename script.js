@@ -677,8 +677,10 @@ document.addEventListener('DOMContentLoaded', () => {
       formattedAnswers[`question_${q.id}`] = saved ? saved.answer : null;
     });
 
+    const cleanVisitorName = (visitorName || 'Anonymous').trim();
+
     const payload = {
-      visitor_name: visitorName || 'Anonymous',
+      visitor_name: cleanVisitorName,
       session_id: sessionId,
       answers: formattedAnswers,
       completed: true,
@@ -690,14 +692,30 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (supabaseClient) {
       try {
-        const { data, error } = await supabaseClient
+        // Check for existing record by visitor name to prevent duplicate rows per person
+        const { data: existingRecords } = await supabaseClient
           .from('crush_responses')
-          .upsert([payload], { onConflict: 'session_id' });
+          .select('id, session_id')
+          .ilike('visitor_name', cleanVisitorName)
+          .limit(1);
 
-        if (error) {
-          console.warn("⚠️ Supabase note:", error.message);
+        let result;
+        if (existingRecords && existingRecords.length > 0) {
+          const existingId = existingRecords[0].id;
+          result = await supabaseClient
+            .from('crush_responses')
+            .update(payload)
+            .eq('id', existingId);
         } else {
-          console.log("✅ Successfully saved response to Supabase table 'crush_responses'!", data);
+          result = await supabaseClient
+            .from('crush_responses')
+            .insert([payload]);
+        }
+
+        if (result.error) {
+          console.warn("⚠️ Supabase note:", result.error.message);
+        } else {
+          console.log("✅ Successfully saved response to Supabase table 'crush_responses'!", result.data);
         }
       } catch (err) {
         console.warn("⚠️ Supabase error (answers safe in localStorage):", err);
