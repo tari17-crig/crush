@@ -139,9 +139,23 @@ document.addEventListener('DOMContentLoaded', () => {
     showLockScreen();
   });
 
-  refreshBtn.addEventListener('click', () => {
-    fetchAndRenderResponses();
-  });
+  if (refreshBtn) {
+    refreshBtn.addEventListener('click', async () => {
+      const refreshIcon = refreshBtn.querySelector('.icon-refresh');
+      const refreshText = refreshBtn.querySelector('span');
+      if (refreshIcon) refreshIcon.classList.add('spinning');
+      if (refreshText) refreshText.textContent = 'Refreshing...';
+      refreshBtn.disabled = true;
+
+      await fetchAndRenderResponses();
+
+      setTimeout(() => {
+        if (refreshIcon) refreshIcon.classList.remove('spinning');
+        if (refreshText) refreshText.textContent = 'Refresh';
+        refreshBtn.disabled = false;
+      }, 400);
+    });
+  }
 
   if (clearBtn) {
     clearBtn.addEventListener('click', async () => {
@@ -157,21 +171,27 @@ document.addEventListener('DOMContentLoaded', () => {
           const { error } = await supabaseClient
             .from('crush_responses')
             .delete()
-            .neq('session_id', '___non_existent_id___');
+            .neq('session_id', '___force_clear_all___');
 
           if (error) {
             console.warn("Supabase clear note:", error.message);
           }
         }
 
-        // 2. Clear LocalStorage keys
+        // 2. Clear all LocalStorage keys related to the questionnaire
+        for (let i = localStorage.length - 1; i >= 0; i--) {
+          const key = localStorage.key(i);
+          if (key && key.startsWith('crush_')) {
+            localStorage.removeItem(key);
+          }
+        }
         localStorage.removeItem('crush_visitor_name');
         localStorage.removeItem('crush_answers');
         localStorage.removeItem('crush_declaration_accepted');
         localStorage.removeItem('crush_session_id');
 
-        // 3. Re-render dashboard
-        await fetchAndRenderResponses();
+        // 3. Force re-render empty dashboard
+        renderDashboard([]);
         alert("✅ All submissions cleared successfully!");
       } catch (err) {
         console.error("Clear error:", err);
@@ -325,6 +345,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <div class="response-badges">
           <span class="${declarationTagClass}">${declarationTagText}</span>
           ${record.is_local_mock ? '<span class="source-badge">Local Browser</span>' : '<span class="source-badge">Supabase DB</span>'}
+          <button class="delete-card-btn" title="Delete this submission">🗑️ Delete</button>
         </div>
       </div>
 
@@ -335,6 +356,36 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>
       </div>
     `;
+
+    const singleDeleteBtn = card.querySelector('.delete-card-btn');
+    if (singleDeleteBtn) {
+      singleDeleteBtn.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        const confirmSingle = confirm(`Delete submission from "${record.visitor_name || 'Anonymous'}"?`);
+        if (!confirmSingle) return;
+
+        singleDeleteBtn.disabled = true;
+        try {
+          if (isSupabaseConfigured && supabaseClient && record.id) {
+            await supabaseClient.from('crush_responses').delete().eq('id', record.id);
+          } else if (isSupabaseConfigured && supabaseClient && record.session_id) {
+            await supabaseClient.from('crush_responses').delete().eq('session_id', record.session_id);
+          }
+
+          if (record.is_local_mock || record.session_id === localStorage.getItem('crush_session_id')) {
+            localStorage.removeItem('crush_visitor_name');
+            localStorage.removeItem('crush_answers');
+            localStorage.removeItem('crush_declaration_accepted');
+            localStorage.removeItem('crush_session_id');
+          }
+
+          card.remove();
+          fetchAndRenderResponses();
+        } catch (err) {
+          console.error("Delete record error:", err);
+        }
+      });
+    }
 
     return card;
   }
