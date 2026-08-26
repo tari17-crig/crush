@@ -248,6 +248,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const localRecord = {
         session_id: localStorage.getItem('crush_session_id') || 'local_session',
         visitor_name: localName || 'Anonymous',
+        visitor_photo: localStorage.getItem('crush_visitor_photo') || null,
         declaration_response: localDeclared ? "YES ❤️" : "Pending",
         answers: formattedLocalAnswers,
         created_at: new Date().toISOString(),
@@ -370,6 +371,15 @@ document.addEventListener('DOMContentLoaded', () => {
           <button class="delete-card-btn" title="Delete this submission">🗑️ Delete</button>
         </div>
       </div>
+
+      ${record.visitor_photo ? `
+        <div class="visitor-photo-card-section">
+          <div class="photo-section-label">📸 Confirmation Photo</div>
+          <div class="photo-card-preview-wrap">
+            <img src="${record.visitor_photo}" class="admin-full-photo-preview" alt="Uploaded Selfie" />
+          </div>
+        </div>
+      ` : ''}
 
       <div class="answers-breakdown">
         <div class="answers-accordion-title">Questionnaire Answers (15/15)</div>
