@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Admin Dashboard — Questionnaire Results</title>
+  <meta name="description" content="Private admin dashboard to view crush questionnaire and date declaration responses.">
+
+  <!-- Google Fonts: Plus Jakarta Sans & Playfair Display -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;1,400;1,600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Supabase JS Client via CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+
+  <!-- Ambient Animated Canvas Background -->
+  <canvas id="ambient-canvas"></canvas>
+
+  <!-- Ambient Blurred Glow Lights -->
+  <div class="ambient-glow glow-blue"></div>
+  <div class="ambient-glow glow-purple"></div>
+  <div class="ambient-glow glow-brown"></div>
+
+  <!-- ======================================================== -->
+  <!-- 1. ADMIN PASSCODE LOCK SCREEN                            -->
+  <!-- ======================================================== -->
+  <div id="lock-screen" class="lock-overlay active">
+    <div class="lock-card glass-panel">
+      <div class="lock-icon-wrap">
+        <span class="lock-icon">🔒</span>
+      </div>
+      <h2 class="lock-title">Admin Access Only</h2>
+      <p class="lock-subtitle">Enter your secret PIN to view the responses.</p>
+
+      <form id="pin-form" class="pin-form" onsubmit="return false;">
+        <input 
+          type="password" 
+          id="admin-pin-input" 
+          class="pin-input" 
+          placeholder="Enter PIN (Default: 1234)" 
+          maxlength="10"
+          autocomplete="off"
+          required
+        />
+        <div id="pin-error" class="pin-error-msg hidden">Incorrect PIN. Try again 🚫</div>
+
+        <button type="submit" id="unlock-btn" class="primary-glow-btn">
+          <span>Unlock Dashboard 🔓</span>
+        </button>
+      </form>
+
+      <div class="lock-footer-note">
+        <span>Default PIN is <strong>1234</strong> (You can change it in admin.js)</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- 2. MAIN ADMIN DASHBOARD                                  -->
+  <!-- ======================================================== -->
+  <div id="dashboard-container" class="dashboard-container hidden">
+    
+    <!-- Top Header -->
+    <header class="admin-nav glass-panel-nav">
+      <div class="admin-brand">
+        <span class="pulse-dot"></span>
+        <h1>Responses Dashboard</h1>
+      </div>
+
+      <div class="admin-actions">
+        <button id="refresh-btn" class="action-btn" title="Refresh live data">
+          <svg class="icon-refresh" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="23 4 23 10 17 10"></polyline>
+            <polyline points="1 20 1 14 7 14"></polyline>
+            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+          </svg>
+          <span>Refresh</span>
+        </button>
+
+        <a href="index.html" class="action-btn secondary" title="View main questionnaire website">
+          <span>View Site ↗</span>
+        </a>
+
+        <button id="logout-btn" class="action-btn danger" title="Lock dashboard">
+          <span>Lock 🔒</span>
+        </button>
+      </div>
+    </header>
+
+    <main class="dashboard-content">
+      
+      <!-- Metrics Overview Cards -->
+      <section class="metrics-grid">
+        
+        <div class="metric-card glass-panel">
+          <div class="metric-icon-wrap blue">
+            <span>💌</span>
+          </div>
+          <div class="metric-data">
+            <span class="metric-label">Total Submissions</span>
+            <h3 id="stat-total-count" class="metric-value">0</h3>
+          </div>
+        </div>
+
+        <div class="metric-card glass-panel">
+          <div class="metric-icon-wrap rose">
+            <span>🌹</span>
+          </div>
+          <div class="metric-data">
+            <span class="metric-label">Date Declaration</span>
+            <h3 id="stat-declaration-status" class="metric-value status-tag">Waiting...</h3>
+          </div>
+        </div>
+
+        <div class="metric-card glass-panel">
+          <div class="metric-icon-wrap purple">
+            <span>✨</span>
+          </div>
+          <div class="metric-data">
+            <span class="metric-label">Latest Visitor</span>
+            <h3 id="stat-latest-name" class="metric-value">None yet</h3>
+          </div>
+        </div>
+
+        <div class="metric-card glass-panel">
+          <div class="metric-icon-wrap gold">
+            <span>🕒</span>
+          </div>
+          <div class="metric-data">
+            <span class="metric-label">Last Active</span>
+            <h3 id="stat-latest-time" class="metric-value small-text">Never</h3>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- Supabase Connection Banner (Status indicator) -->
+      <div id="db-status-banner" class="db-status-banner glass-subtle">
+        <div class="db-status-indicator">
+          <span id="db-indicator-dot" class="indicator-dot"></span>
+          <span id="db-status-text">Connecting to Supabase...</span>
+        </div>
+        <span id="data-source-badge" class="source-badge">Database Mode</span>
+      </div>
+
+      <!-- Submissions Section -->
+      <section class="submissions-section">
+        <div class="section-header">
+          <h2>All Responses</h2>
+          <span id="records-count-badge" class="badge-count">0 records</span>
+        </div>
+
+        <!-- Empty State Message -->
+        <div id="empty-state" class="empty-state glass-panel hidden">
+          <div class="empty-icon">📭</div>
+          <h3>No responses received yet</h3>
+          <p>Send the website link to your crush! When she enters her name and completes the questionnaire, her answers will show up here immediately.</p>
+          <a href="index.html" class="primary-glow-btn empty-cta"><span>Open Questionnaire</span></a>
+        </div>
+
+        <!-- Responses Cards Container -->
+        <div id="responses-container" class="responses-grid">
+          <!-- Dynamically populated by admin.js -->
+        </div>
+
+      </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="admin-footer">
+      <p>Private Admin Area • Confidential</p>
+    </footer>
+
+  </div>
+
+  <script src="admin.js"></script>
+</body>
+</html>

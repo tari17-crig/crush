@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>A Few Questions I’ve Been Wanting To Ask You 👀</title>
+  <meta name="description" content="A private, interactive, and personal questionnaire just for you.">
+
+  <!-- Google Fonts: Plus Jakarta Sans & Playfair Display -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;1,400;1,600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Supabase JS Client via Official CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Ambient Animated Starfield & Particles Background -->
+  <canvas id="ambient-canvas"></canvas>
+
+  <!-- Particle / Celebration Burst Canvas -->
+  <canvas id="burst-canvas"></canvas>
+
+  <!-- Ambient Blurred Glow Lights -->
+  <div class="ambient-glow glow-blue"></div>
+  <div class="ambient-glow glow-purple"></div>
+  <div class="ambient-glow glow-brown"></div>
+
+  <!-- Background Music Audio Element -->
+  <audio id="backgroundMusic" loop preload="auto">
+    <source src="assets/music.mp3" type="audio/mpeg">
+  </audio>
+
+  <!-- Top Floating Navigation & Music Control -->
+  <header class="top-nav">
+    <div class="nav-brand">
+      <span class="nav-pulse"></span>
+      <span class="nav-brand-text">A Private Space For You ✨</span>
+    </div>
+    
+    <button id="music-toggle-btn" class="music-pill-btn" aria-label="Toggle background sound">
+      <span id="music-icon">🔇</span>
+      <span id="music-text">Sound Off</span>
+    </button>
+  </header>
+
+  <!-- Main Viewport Content Wrapper -->
+  <main class="app-container">
+
+    <!-- ======================================================== -->
+    <!-- 1. LOGIN / WELCOME SCREEN                                -->
+    <!-- ======================================================== -->
+    <section id="welcome-screen" class="view-panel active">
+      <div class="welcome-card glass-panel">
+        
+        <div class="welcome-badge">
+          <span class="star-icon">✦</span>
+          <span>For someone kinda special…</span>
+          <span class="star-icon">✦</span>
+        </div>
+
+        <h1 class="welcome-title">
+          Hey You <span class="glow-emoji">👀</span>
+        </h1>
+
+        <p class="welcome-subtitle">
+          Before you continue, I need to make sure it’s actually you.
+        </p>
+
+        <form id="login-form" class="login-form" onsubmit="return false;">
+          <div class="input-field-wrap">
+            <input 
+              type="text" 
+              id="visitor-name-input" 
+              class="glow-input" 
+              placeholder="Your name or nickname…" 
+              autocomplete="off" 
+              maxlength="40"
+              required
+            />
+            <div id="name-error" class="input-error-msg hidden">Please enter your name first 😌</div>
+          </div>
+
+          <button type="submit" id="enter-btn" class="primary-glow-btn">
+            <span>Let Me In ✨</span>
+          </button>
+        </form>
+
+        <div class="welcome-footer-tag">
+          <span>A private, judgment-free zone 🌙</span>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ======================================================== -->
+    <!-- 2. DECLARATION SCREEN (RUNAWAY "NO" BUTTON)             -->
+    <!-- ======================================================== -->
+    <section id="declaration-screen" class="view-panel hidden">
+      <div id="declaration-card" class="declaration-card glass-panel">
+        
+        <div class="declaration-badge">
+          <span class="star-icon">🌹</span>
+          <span>Mandatory Pre-Condition</span>
+          <span class="star-icon">🌹</span>
+        </div>
+
+        <h2 class="declaration-heading">
+          Wait, <span id="declaration-name-display" class="highlight-text">You</span>… will you go out on a real date with me? 🥺❤️
+        </h2>
+
+        <p class="declaration-subtext">
+          You have to agree to this first before unlocking the questions! Choose wisely… 😌
+        </p>
+
+        <p class="declaration-hint">
+          (Tip: Rejection is mathematically impossible here 😂)
+        </p>
+
+        <!-- Dodge Action Arena -->
+        <div id="dodge-arena" class="dodge-arena">
+          
+          <!-- YES Button (Clickable, expands and glows) -->
+          <button id="yes-btn" class="yes-btn primary-glow-btn">
+            <span class="yes-btn-icon">💖</span>
+            <span class="yes-btn-text">YES! 🥰❤️</span>
+          </button>
+
+          <!-- NO Button (Runs away dynamically from cursor / touch) -->
+          <button id="no-btn" class="no-btn" aria-label="No button">
+            <span id="no-btn-text">No 😭</span>
+          </button>
+
+        </div>
+
+        <!-- Dodge Count Commentary -->
+        <div id="dodge-commentary" class="dodge-commentary">
+          <span id="dodge-msg"></span>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ======================================================== -->
+    <!-- 3. MAIN INTRO SCREEN (POPS RIGHT AFTER CLICKING YES!)    -->
+    <!-- ======================================================== -->
+    <section id="intro-screen" class="view-panel hidden">
+      <div class="intro-card glass-panel">
+        
+        <div class="intro-bubble-icon">
+          <span>💌</span>
+        </div>
+
+        <h2 class="intro-greeting">
+          Okay, <span id="intro-name-display" class="highlight-text">You</span>…
+        </h2>
+
+        <div class="intro-text-body">
+          <p>I could’ve just texted you these questions…</p>
+          <p class="intro-subtext">But apparently I enjoy making things unnecessarily complicated 😭</p>
+          <p class="intro-prompt">So… answer honestly.</p>
+        </div>
+
+        <button id="start-quiz-btn" class="primary-glow-btn pulse-glow">
+          <span>Start 👀</span>
+        </button>
+
+      </div>
+    </section>
+
+    <!-- ======================================================== -->
+    <!-- 4. QUESTIONNAIRE SCREEN (15 Questions)                   -->
+    <!-- ======================================================== -->
+    <section id="quiz-screen" class="view-panel hidden">
+      <div class="quiz-wrapper">
+
+        <!-- Progress Header -->
+        <div class="progress-container glass-subtle">
+          <div class="progress-header">
+            <span id="question-indicator" class="progress-step-label">Question 1 of 15</span>
+            <span id="progress-percent" class="progress-percent-label">7%</span>
+          </div>
+          <div class="progress-bar-track">
+            <div id="progress-bar-fill" class="progress-bar-fill">
+              <div class="progress-glow-head"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Question Card -->
+        <div id="question-card" class="question-card glass-panel">
+          
+          <!-- Dramatic Header for Question 15 -->
+          <div id="special-q15-badge" class="special-q15-badge hidden">
+            <span class="sparkle-symbol">✧</span>
+            <span>Okay… One last question.</span>
+            <span class="sparkle-symbol">✧</span>
+          </div>
+
+          <div class="question-content">
+            <h2 id="question-title" class="question-heading">
+              How would you describe my vibe?
+            </h2>
+          </div>
+
+          <!-- Dynamic Options Grid -->
+          <div id="options-grid" class="options-grid">
+            <!-- Rendered dynamically by script.js -->
+          </div>
+
+          <!-- Selection Confirmation Toast -->
+          <div id="save-status" class="save-status">
+            <span class="status-pulse-dot"></span>
+            <span class="status-text">Noted 👀</span>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ======================================================== -->
+    <!-- 5. FINAL / ENDING SCREEN                                 -->
+    <!-- ======================================================== -->
+    <section id="final-screen" class="view-panel hidden">
+      <div class="final-card glass-panel">
+        
+        <div class="final-glow-heart">
+          <span class="heart-pulse-icon">💖</span>
+        </div>
+
+        <div class="final-text-sequence">
+          <p class="final-small-intro">Okay…</p>
+          <h2 class="final-main-title">
+            I wasn’t expecting you to actually answer all of those 😭
+          </h2>
+          
+          <h3 class="final-personalized-callout">
+            But seriously, <span id="final-name-display" class="highlight-text">You</span>…
+          </h3>
+
+          <p class="final-letter-paragraph">
+            I made this because I enjoy talking to you, I like your energy, and somehow you became someone I genuinely look forward to hearing from.
+          </p>
+
+          <p class="final-letter-paragraph subtle">
+            I’m not trying to pressure you into anything. I just wanted to make something that might make you smile.
+          </p>
+
+          <p class="final-learn-text">
+            And maybe learn a few things along the way <span class="glow-emoji">👀</span>
+          </p>
+
+          <div class="final-debt-box">
+            <span>Now you owe me one question.</span>
+          </div>
+        </div>
+
+        <!-- Reaction Action Buttons -->
+        <div class="reaction-buttons-wrapper">
+          <button class="reaction-btn" data-reaction="cute">
+            <span>Okay, that was actually cute ❤️</span>
+          </button>
+          <button class="reaction-btn" data-reaction="ridiculous">
+            <span>You’re ridiculous 😂</span>
+          </button>
+          <button class="reaction-btn" data-reaction="question">
+            <span>I have a question 👀</span>
+          </button>
+        </div>
+
+        <!-- Secret Message Trigger Button -->
+        <div class="secret-trigger-area">
+          <button id="secret-trigger-btn" class="secret-btn">
+            <span>Psst… one more thing</span>
+            <span class="secret-sparkle">✨</span>
+          </button>
+        </div>
+
+        <!-- Answer Summary View Toggle -->
+        <div class="summary-section-wrapper">
+          <button id="summary-toggle-btn" class="summary-toggle-btn">
+            <span>See What You Just Admitted 👀</span>
+            <svg class="chevron-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+          </button>
+
+          <div id="summary-panel" class="summary-panel glass-subtle hidden">
+            <div class="summary-list" id="summary-list">
+              <!-- Injected by script.js -->
+            </div>
+            <div class="summary-footer-note">
+              <p>Interesting…</p>
+              <p class="note-flirty">I’ll remember some of these answers 😂</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Restart Button -->
+        <div class="restart-container">
+          <button id="restart-quiz-btn" class="restart-pill-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="1 4 1 10 7 10"></polyline>
+              <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+            </svg>
+            <span>Retake from start</span>
+          </button>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ======================================================== -->
+  <!-- 6. SECRET MESSAGE MODAL                                  -->
+  <!-- ======================================================== -->
+  <div id="secret-modal" class="modal-overlay hidden">
+    <div class="secret-modal-card glass-panel">
+      <div class="modal-badge">🤫 Confidential</div>
+      <h3 class="modal-title">Secret message 🤫</h3>
+      
+      <div class="modal-body-text">
+        <p>If you’re reading this, congratulations.</p>
+        <p>You officially explored way too much of this website 😂</p>
+        <p class="modal-warm-subtext">But I’m glad you did.</p>
+      </div>
+
+      <button id="close-secret-btn" class="primary-glow-btn modal-close-btn">
+        <span>Close ❤️</span>
+      </button>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
