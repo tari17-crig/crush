@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: crush
+    name: daphy
     env: static
     buildCommand: ""
     staticPublishPath: ./
