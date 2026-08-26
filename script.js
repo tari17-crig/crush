@@ -418,6 +418,11 @@ document.addEventListener('DOMContentLoaded', () => {
     initAudioContext();
     playSoftChime(587.33, 0.25);
 
+    // Auto-start background music on user click if not already playing
+    if (!isMusicPlaying && backgroundMusic) {
+      toggleMusic();
+    }
+
     // Update personalized text displays
     declarationNameDisplay.textContent = visitorName;
     introNameDisplay.textContent = visitorName;
