@@ -1,0 +1,6 @@
+services:
+  - type: web
+    name: crush
+    env: static
+    buildCommand: ""
+    staticPublishPath: ./
