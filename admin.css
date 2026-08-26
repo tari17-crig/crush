@@ -371,6 +371,19 @@ body {
   border-color: var(--color-rose);
 }
 
+.action-btn.danger-clear {
+  background: rgba(239, 68, 68, 0.12);
+  border-color: rgba(239, 68, 68, 0.35);
+  color: #FCA5A5;
+}
+
+.action-btn.danger-clear:hover {
+  background: rgba(239, 68, 68, 0.3);
+  border-color: #EF4444;
+  color: #FFFFFF;
+  box-shadow: 0 0 15px rgba(239, 68, 68, 0.4);
+}
+
 .icon-refresh {
   width: 14px;
   height: 14px;

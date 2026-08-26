@@ -73,6 +73,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const unlockBtn = document.getElementById('unlock-btn');
   const logoutBtn = document.getElementById('logout-btn');
   const refreshBtn = document.getElementById('refresh-btn');
+  const clearBtn = document.getElementById('clear-btn');
 
   const statTotalCount = document.getElementById('stat-total-count');
   const statDeclarationStatus = document.getElementById('stat-declaration-status');
@@ -141,6 +142,46 @@ document.addEventListener('DOMContentLoaded', () => {
   refreshBtn.addEventListener('click', () => {
     fetchAndRenderResponses();
   });
+
+  if (clearBtn) {
+    clearBtn.addEventListener('click', async () => {
+      const confirmed = confirm("⚠️ Are you sure you want to clear ALL questionnaire submissions?\n\nThis will permanently delete all stored responses from both Supabase and LocalStorage.");
+      if (!confirmed) return;
+
+      clearBtn.disabled = true;
+      clearBtn.style.opacity = '0.5';
+
+      try {
+        // 1. Clear Supabase table if configured
+        if (isSupabaseConfigured && supabaseClient) {
+          const { error } = await supabaseClient
+            .from('crush_responses')
+            .delete()
+            .neq('session_id', '___non_existent_id___');
+
+          if (error) {
+            console.warn("Supabase clear note:", error.message);
+          }
+        }
+
+        // 2. Clear LocalStorage keys
+        localStorage.removeItem('crush_visitor_name');
+        localStorage.removeItem('crush_answers');
+        localStorage.removeItem('crush_declaration_accepted');
+        localStorage.removeItem('crush_session_id');
+
+        // 3. Re-render dashboard
+        await fetchAndRenderResponses();
+        alert("✅ All submissions cleared successfully!");
+      } catch (err) {
+        console.error("Clear error:", err);
+        alert("An error occurred while clearing submissions.");
+      } finally {
+        clearBtn.disabled = false;
+        clearBtn.style.opacity = '1';
+      }
+    });
+  }
 
   // ==========================================================================
   // 4. DATA FETCHING & RENDERING
