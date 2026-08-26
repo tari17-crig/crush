@@ -350,11 +350,15 @@ document.addEventListener('DOMContentLoaded', () => {
       `;
     }
 
+    const avatarHTML = record.visitor_photo 
+      ? `<img src="${record.visitor_photo}" class="admin-visitor-avatar" alt="Visitor Avatar" />`
+      : `<span>💌</span>`;
+
     card.innerHTML = `
       <div class="response-card-header">
         <div class="visitor-info">
           <div class="visitor-name-badge">
-            <span>💌</span>
+            ${avatarHTML}
             <h3>${escapeHTML(record.visitor_name || 'Anonymous')}</h3>
           </div>
           <span class="response-time">${escapeHTML(timeStr)}</span>

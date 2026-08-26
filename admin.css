@@ -639,7 +639,16 @@ body {
 .visitor-name-badge {
   display: flex;
   align-items: center;
-  gap: 0.6rem;
+  gap: 0.65rem;
+}
+
+.admin-visitor-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--color-soft-purple);
+  box-shadow: 0 0 12px var(--color-purple-glow);
 }
 
 .visitor-name-badge h3 {

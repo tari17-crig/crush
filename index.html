@@ -98,6 +98,53 @@
     </section>
 
     <!-- ======================================================== -->
+    <!-- 1B. PHOTO CONFIRMATION SCREEN                            -->
+    <!-- ======================================================== -->
+    <section id="photo-screen" class="view-panel hidden">
+      <div class="welcome-card glass-panel">
+        
+        <div class="welcome-badge">
+          <span class="star-icon">📸</span>
+          <span>Photo Confirmation</span>
+          <span class="star-icon">📸</span>
+        </div>
+
+        <h2 class="welcome-title" style="font-size: 2.2rem; margin-bottom: 0.5rem;">
+          Identity Check <span class="glow-emoji">✨</span>
+        </h2>
+
+        <p class="welcome-subtitle" style="margin-bottom: 1.5rem;">
+          Add a quick photo or selfie so I can confirm it’s really <strong id="photo-name-display" style="color: var(--color-lavender-glow);">Daphy</strong>!
+        </p>
+
+        <div class="photo-upload-container">
+          <div id="photo-dropzone" class="photo-dropzone" tabindex="0">
+            <div id="photo-placeholder-content" class="photo-placeholder-content">
+              <span class="camera-upload-icon">📸</span>
+              <p class="dropzone-text">Click or drag & drop your photo here</p>
+              <span class="dropzone-subtext">Supports JPG, PNG or WEBP</span>
+            </div>
+
+            <img id="photo-preview-img" class="photo-preview-img hidden" alt="Uploaded Preview" />
+          </div>
+
+          <input type="file" id="photo-file-input" accept="image/*" class="hidden" />
+
+          <div class="photo-actions-wrap">
+            <button type="button" id="confirm-photo-btn" class="primary-glow-btn">
+              <span>Confirm & Continue ✨</span>
+            </button>
+
+            <button type="button" id="skip-photo-btn" class="secondary-subtle-btn">
+              <span>Skip for now ➔</span>
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ======================================================== -->
     <!-- 2. DECLARATION SCREEN (RUNAWAY "NO" BUTTON)             -->
     <!-- ======================================================== -->
     <section id="declaration-screen" class="view-panel hidden">

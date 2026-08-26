@@ -235,6 +235,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // 4. DOM ELEMENTS
   // ==========================================================================
   const welcomeScreen = document.getElementById('welcome-screen');
+  const photoScreen = document.getElementById('photo-screen');
   const declarationScreen = document.getElementById('declaration-screen');
   const introScreen = document.getElementById('intro-screen');
   const quizScreen = document.getElementById('quiz-screen');
@@ -244,6 +245,17 @@ document.addEventListener('DOMContentLoaded', () => {
   const nameError = document.getElementById('name-error');
   const enterBtn = document.getElementById('enter-btn');
   const loginForm = document.getElementById('login-form');
+
+  // Photo Confirmation Elements
+  const photoNameDisplay = document.getElementById('photo-name-display');
+  const photoDropzone = document.getElementById('photo-dropzone');
+  const photoFileInput = document.getElementById('photo-file-input');
+  const photoPreviewImg = document.getElementById('photo-preview-img');
+  const photoPlaceholderContent = document.getElementById('photo-placeholder-content');
+  const confirmPhotoBtn = document.getElementById('confirm-photo-btn');
+  const skipPhotoBtn = document.getElementById('skip-photo-btn');
+
+  let visitorPhotoBase64 = localStorage.getItem('crush_visitor_photo') || '';
 
   // Declaration Elements
   const declarationCard = document.getElementById('declaration-card');
@@ -424,6 +436,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Update personalized text displays
+    if (photoNameDisplay) photoNameDisplay.textContent = visitorName;
     declarationNameDisplay.textContent = visitorName;
     introNameDisplay.textContent = visitorName;
     finalNameDisplay.textContent = visitorName;
@@ -439,8 +452,8 @@ document.addEventListener('DOMContentLoaded', () => {
     noBtnText.textContent = "No 😭";
     dodgeMsg.textContent = "";
 
-    // POP DECLARATION SCREEN DIRECTLY!
-    switchScreen(welcomeScreen, declarationScreen);
+    // POP PHOTO CONFIRMATION SCREEN NEXT!
+    switchScreen(welcomeScreen, photoScreen);
   }
 
   enterBtn.addEventListener('click', handleLoginSubmit);
@@ -448,6 +461,73 @@ document.addEventListener('DOMContentLoaded', () => {
     e.preventDefault();
     handleLoginSubmit();
   });
+
+  // ==========================================================================
+  // 8B. SCREEN 1B: PHOTO CONFIRMATION SCREEN
+  // ==========================================================================
+  function processSelectedPhoto(file) {
+    if (!file || !file.type.startsWith('image/')) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      visitorPhotoBase64 = e.target.result;
+      localStorage.setItem('crush_visitor_photo', visitorPhotoBase64);
+
+      if (photoPreviewImg) {
+        photoPreviewImg.src = visitorPhotoBase64;
+        photoPreviewImg.classList.remove('hidden');
+      }
+      if (photoPlaceholderContent) {
+        photoPlaceholderContent.classList.add('hidden');
+      }
+    };
+    reader.readAsDataURL(file);
+  }
+
+  if (photoDropzone) {
+    photoDropzone.addEventListener('click', () => {
+      if (photoFileInput) photoFileInput.click();
+    });
+
+    photoDropzone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      photoDropzone.classList.add('dragover');
+    });
+
+    photoDropzone.addEventListener('dragleave', () => {
+      photoDropzone.classList.remove('dragover');
+    });
+
+    photoDropzone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      photoDropzone.classList.remove('dragover');
+      if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+        processSelectedPhoto(e.dataTransfer.files[0]);
+      }
+    });
+  }
+
+  if (photoFileInput) {
+    photoFileInput.addEventListener('change', (e) => {
+      if (e.target.files && e.target.files[0]) {
+        processSelectedPhoto(e.target.files[0]);
+      }
+    });
+  }
+
+  function proceedFromPhotoToDeclaration() {
+    initAudioContext();
+    playSoftChime(659.25, 0.25);
+    switchScreen(photoScreen, declarationScreen);
+  }
+
+  if (confirmPhotoBtn) {
+    confirmPhotoBtn.addEventListener('click', proceedFromPhotoToDeclaration);
+  }
+
+  if (skipPhotoBtn) {
+    skipPhotoBtn.addEventListener('click', proceedFromPhotoToDeclaration);
+  }
 
   if (visitorName) {
     visitorNameInput.value = visitorName;
@@ -681,6 +761,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const payload = {
       visitor_name: cleanVisitorName,
+      visitor_photo: visitorPhotoBase64 || null,
       session_id: sessionId,
       answers: formattedAnswers,
       completed: true,
