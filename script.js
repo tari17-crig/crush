@@ -5,7 +5,7 @@
  * Screen Flow:
  * 1. Welcome / Name Screen ("Let Me In ✨")
  * 2. Declaration Screen (Runaway "NO" button -> user clicks "YES! 🥰❤️")
- * 3. Intro Screen ("Okay, Daphy... I could've just texted you... [Start 👀]")
+ * 3. Intro Screen ("Okay, [Name]... I could've just texted you... [Start 👀]")
  * 4. 15 Questions Interactive Flow (Question 1 to 15)
  * 5. Final Screen (Ending summary, reactions, secret message, retake option)
  */
@@ -555,9 +555,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const dodgeMessages = [
     "I told you rejection was mathematically disabled 😂",
     "The universe is gently steering you towards YES 👀",
-    "Look how bright and shiny the YES button is getting! ✨",
+    "Look how bright the YES button is getting! ✨",
     "You’re really trying hard to click No huh? 😭❤️",
-    "Just surrender to the date already 😌🌹"
+    "Just surrender to the date already 😌"
   ];
 
   function dodgeNoButton(e) {
@@ -911,7 +911,8 @@ document.addEventListener('DOMContentLoaded', () => {
       this.speedX = (Math.random() - 0.5) * 0.25;
       this.opacity = Math.random() * 0.5 + 0.2;
       this.isStarShape = Math.random() > 0.7;
-      this.color = Math.random() > 0.4 ? 'rgba(167, 139, 250,' : 'rgba(91, 140, 255,';
+      // Flat blue / red palette only (no purple/lavender)
+      this.color = Math.random() > 0.4 ? 'rgba(76, 124, 240,' : 'rgba(240, 58, 78,';
     }
 
     update() {
@@ -945,7 +946,7 @@ document.addEventListener('DOMContentLoaded', () => {
         aCtx.beginPath();
         aCtx.arc(0, 0, this.size, 0, Math.PI * 2);
         aCtx.fillStyle = `${this.color} ${this.opacity})`;
-        aCtx.shadowColor = 'rgba(139, 92, 246, 0.4)';
+        aCtx.shadowColor = 'rgba(76, 124, 240, 0.35)';
         aCtx.shadowBlur = this.size * 3;
         aCtx.fill();
       }
@@ -986,9 +987,11 @@ document.addEventListener('DOMContentLoaded', () => {
   let burstParticles = [];
   let isBurstActive = false;
 
+  // Flat blue / black / red palette only — no purple, gold or pastel mix
   const burstColors = [
-    '#5B8CFF', '#8B5CF6', '#A78BFA', '#FDE047', 
-    '#F5F3FF', '#A47551', '#4169E1', '#FF4D6D', '#FF758F'
+    '#2F5ED6', '#4C7CF0', '#1B3A8F',
+    '#D8293C', '#F03A4E', '#8A1826',
+    '#FFFFFF'
   ];
 
   class BurstParticle {
